@@ -10,12 +10,12 @@
 
 # Configuration variables
 CONFIG_VARS = {
-    "API_ID": 24115379,
-    "API_HASH": "46e4d386ed57acd171fd10c56bec7063",
-    "BOT_TOKEN": "7693175670:AAHoVpUbgpYEWjbjX9zXki0_yBjLmHUlH9g",
-    "LOGGER_GROUP": int("-1002277170768"),
-    "PHONE_NUMBER": "+919041860551",
-    "OWNER_ID": [6245002826]
+    "API_ID": ,
+    "API_HASH": "",
+    "BOT_TOKEN": "",
+    "LOGGER_GROUP": int(""),
+    "PHONE_NUMBER": "",
+    "OWNER_ID": []
 }
 
 # SUDO_ID is derived from OWNER_ID
