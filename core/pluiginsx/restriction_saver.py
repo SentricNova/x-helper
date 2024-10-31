@@ -107,6 +107,7 @@ async def save(client, message, ub=userbot):
                         await app.copy_message(message.chat.id, chat_id_1, save_msg_id)
                         saved += 1
                     except Exception as err:
+                        print(err)
                         failed += 1
                 return await info.edit_text(f"{saved} every type of media files are saved {f'and {failed} failed' if failed else ''}.")
             else:
@@ -133,6 +134,7 @@ async def save(client, message, ub=userbot):
                         except Exception as err:
                             pass
                     except Exception as err:
+                        print(err)
                         failed += 1
                         pass
                 return await info.edit_text(f"{saved} every type of media files are saved {f'and {failed} failed' if failed else None}.")
@@ -159,6 +161,7 @@ async def save(client, message, ub=userbot):
                 await app.copy_message(message.chat.id, chat_id_1, start_msg_id)
                 saved += 1
             except Exception as err:
+                return await message.reply_text(err)
                 failed += 1
             return await info.edit_text(f"{saved} every type of media files are saved {f'and {failed} failed' if failed else ''}.")
         else:
@@ -184,6 +187,7 @@ async def save(client, message, ub=userbot):
                 except Exception as err:
                     pass
             except Exception as err:
+                return await message.reply_text(err)
                 failed += 1
                 pass
             return await info.edit_text(f"{saved} every type of media files are saved {f'and {failed} failed' if failed else ''}.")
