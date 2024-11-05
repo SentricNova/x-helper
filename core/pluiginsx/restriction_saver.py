@@ -242,10 +242,10 @@ async def save(client, message, ub=userbot):
 async def generate_sequence(start_from, number_of_msgs):
     result = []  # Empty list to store the sequence
 
-    if user_input < 0:
+    if number_of_msgs < 0:
         for i in range(start_from, start_from + number_of_msgs, -1):
             result.append(i)
-    elif user_input > 0:
+    elif number_of_msgs > 0:
         for i in range(start_from, start_from + number_of_msgs):
             result.append(i)
     else:
