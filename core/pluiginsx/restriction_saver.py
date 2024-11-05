@@ -297,7 +297,7 @@ async def save(client, message, ub=userbot):
                 await message.reply_text(f"{saved} every type of media files are saved {f'and {failed} failed' if failed else ''}.")
 
             else:
-                for mag_id in msg_ids:
+                for mag_id in msgs_ids:
                     try:
                         mmsg = await app.get_messages(chat_id_1, mag_id)
                     except:
