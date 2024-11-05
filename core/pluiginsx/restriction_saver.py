@@ -243,13 +243,13 @@ async def generate_sequence(start_from, number_of_msgs):
     result = []  # Empty list to store the sequence
 
     if user_input < 0:
-        for i in range(a, a + user_input, -1):
+        for i in range(start_from, start_from + number_of_msgs, -1):
             result.append(i)
     elif user_input > 0:
-        for i in range(a, a + user_input):
+        for i in range(start_from, start_from + number_of_msgs):
             result.append(i)
     else:
-        result.append(a)
+        result.append(start_from)
 
     return result  # Return the generated sequence as a list
 
