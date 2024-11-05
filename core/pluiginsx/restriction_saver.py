@@ -68,6 +68,9 @@ async def url_parse(link):
 # below are functions.
 @app.on_message(filters.command("save") & filters.user(SUDO_USERS))
 async def save(client, message, ub=userbot):
+    global is_busy
+    if is_busy:
+        return await message.reply_text("Bot is already doing another task so please wait for completing previews task.")
     saved = 0
     failed = 0
     msg_splited = message.text.split(" ")
@@ -129,10 +132,11 @@ async def save(client, message, ub=userbot):
                     #print(err)
                     pass
             await info.edit_text(f"⌛ **{len(msgs_ids)} Media Messages are loaded! Trying to save...**")
+            is_busy = True
             if chat_type_1 == "public":
                 #print("running public protocol")
                 if not msgs_ids:
-                    return await message.reply_text("Userbot not loaded chat history of this public channel!\n\nShould we direct start forwarding?")
+                    return await message.reply_text("Userbot not loaded chat history of this public channel!\n\nPlease try /save_manual")
                 for save_msg_id in msgs_ids:
                     #print(123)
                     try:
@@ -147,7 +151,8 @@ async def save(client, message, ub=userbot):
                     except Exception as err:
                         #print(453)
                         failed += 1
-                return await message.reply_text(f"{saved} every type of media files are saved {f'and {failed} failed' if failed else ''}.")
+                        continue
+                await message.reply_text(f"{saved} every type of media files are saved {f'and {failed} failed' if failed else ''}.")
             else:
                 for mmsg in pure_msgs:
                     try:
@@ -156,10 +161,8 @@ async def save(client, message, ub=userbot):
                         saved += 1
                         try:
                             os.remove(mediafile)
-                        except FloodWait as t:
-                            await asyncio.sleep(t.value)
                         except Exception as err:
-                            pass
+                            continue
                     except FloodWait as t:
                         await asyncio.sleep(t.value)
                         mediafile = await ub.download_media(mmsg)
@@ -167,14 +170,14 @@ async def save(client, message, ub=userbot):
                         saved += 1
                         try:
                             os.remove(mediafile)
-                        except FloodWait as t:
-                            await asyncio.sleep(t.value)
                         except Exception as err:
-                            pass
+                            continue
                     except Exception as err:
                         failed += 1
-                        pass
-                return await message.reply_text(f"{saved} every type of media files are saved {f'and {failed} failed' if failed else None}.")
+                        continue
+                await message.reply_text(f"{saved} every type of media files are saved {f'and {failed} failed' if failed else None}.")
+            is_busy = False
+            return
         except FloodWait as t:
             await asyncio.sleep(t.value)
         except Exception as err:
@@ -190,6 +193,7 @@ async def save(client, message, ub=userbot):
         if not start_msg_id or not chat_id_1:
             return await message.reply_text("This is an invalid URL!")
         info = await message.reply_text("⏳ **Loading message ids...**")
+        is_busy = True
         if chat_type_1 == "public":
             try:
                 await app.copy_message(message.chat.id, chat_id_1, start_msg_id)
@@ -200,7 +204,7 @@ async def save(client, message, ub=userbot):
                 saved += 1
             except Exception as err:
                 failed += 1
-            return await info.edit_text(f"{saved} every type of media files are saved {f'and {failed} failed' if failed else ''}.")
+            await info.edit_text(f"{saved} every type of media files are saved {f'and {failed} failed' if failed else ''}.")
         else:
             try:
                 lel = await ub.get_messages(chat_id_1, start_msg_id)
@@ -226,6 +230,125 @@ async def save(client, message, ub=userbot):
             except Exception as err:
                 failed += 1
                 pass
-            return await info.edit_text(f"{saved} every type of media files are saved {f'and {failed} failed' if failed else ''}.")
+            await info.edit_text(f"{saved} every type of media files are saved {f'and {failed} failed' if failed else ''}.")
+        is_busy = False
+        return
     else:
+        is_busy = False
         return await message.reply_text("Wrong command! Use this command like:\n\n/save https://t.me/lol/234234 https://t.me/lol/2342387")
+
+
+
+async def generate_sequence(start_from, number_of_msgs):
+    result = []  # Empty list to store the sequence
+
+    if user_input < 0:
+        for i in range(a, a + user_input, -1):
+            result.append(i)
+    elif user_input > 0:
+        for i in range(a, a + user_input):
+            result.append(i)
+    else:
+        result.append(a)
+
+    return result  # Return the generated sequence as a list
+
+
+# below are functions.
+@app.on_message(filters.command("save_manual") & filters.user(SUDO_USERS))
+async def save(client, message, ub=userbot):
+    global is_busy
+    if is_busy:
+        return await message.reply_text("Bot is already doing another task so please wait for completing previews task.")
+    saved = 0
+    failed = 0
+    msg_splited = message.text.split(" ")
+    if len(msg_splited) == 3:
+        start_from = msg_splited[1]
+        end_here = msg_splited[2]
+        chat_id_1, topic_id, start_msg_id, chat_type_1 = await url_parse(start_from)
+        #print(chat_id_1, topic_id, ostart_msg_id, chat_type_1)
+        try:
+            number_of_messages = int(end_here)
+        except Exception as err:
+            return await message.reply_text(err)
+        #print(chat_id_2, topic_id, oend_msg_id, chat_type_2)
+        
+        try:
+            info = await message.reply_text("⏳ **Loading message ids...**")
+            try:
+                msgs_ids = await generate_sequence(start_msg_id, end_here)
+            except Exception as err:
+                return await message.reply_text(err)
+            await info.edit_text(f"⌛ **{len(msgs_ids)} Media Messages are loaded! Trying to save...**")
+            is_busy = True
+            if chat_type_1 == "public":
+                for save_msg_id in msgs_ids:
+                    try:
+                        await app.copy_message(message.chat.id, chat_id_1, save_msg_id)
+                        saved += 1
+                    except FloodWait as t:
+                        await asyncio.sleep(t.value)
+                        await app.copy_message(message.chat.id, chat_id_1, save_msg_id)
+                        saved += 1
+                    except Exception as err:
+                        failed += 1
+                        continue
+                await message.reply_text(f"{saved} every type of media files are saved {f'and {failed} failed' if failed else ''}.")
+
+            else:
+                for mag_id in msg_ids:
+                    try:
+                        mmsg = await app.get_messages(chat_id_1, mag_id)
+                    except:
+                        continue
+                    try:
+                        if mmsg.media:
+                            mediafile = await ub.download_media(mmsg)
+                            await app.send_document(message.chat.id, mediafile)
+                            saved += 1
+                            try:
+                                os.remove(mediafile)
+                            except FloodWait as t:
+                                await asyncio.sleep(t.value)
+                            except Exception as err:
+                                continue
+                    except FloodWait as t:
+                        await asyncio.sleep(t.value)
+                        mediafile = await ub.download_media(mmsg)
+                        await app.send_document(message.chat.id, mediafile)
+                        saved += 1
+                        try:
+                            os.remove(mediafile)
+                        except FloodWait as t:
+                            await asyncio.sleep(t.value)
+                        except Exception as err:
+                            continue
+                    except Exception as err:
+                        failed += 1
+                        continue
+                await message.reply_text(f"{saved} every type of media files are saved {f'and {failed} failed' if failed else None}.")
+            is_busy = False
+            return
+        except FloodWait as t:
+            await asyncio.sleep(t.value)
+        except Exception as err:
+            await message.reply_text(err)
+            try:
+                await info.delete()
+            except:
+                pass
+            return
+    else:
+        is_busy = False
+        return await message.reply_text("Wrong command! Use this command like:\n\n/save https://t.me/lol/100 -69")
+
+
+@app.on_message(filters.command("free") & filters.user(SUDO_USERS))
+async def save(client, message, ub=userbot):
+    global is_busy
+    if not is_busy:
+        return await message.reply_text(f"Bot isn't in busy mode.\nis_busy = {is_busy}")
+    else:
+        is_busy = False
+        return await message.reply_text(f"Is_busy var is forcefully changed to {is_busy} by {message.from_user.mention}")
